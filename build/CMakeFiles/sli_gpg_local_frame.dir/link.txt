@@ -1,0 +1,2 @@
+/usr/bin/ar qc libsli_gpg_local_frame.a  CMakeFiles/sli_gpg_local_frame.dir/src/sli_gpg/local_frame.cpp.o
+/usr/bin/ranlib libsli_gpg_local_frame.a

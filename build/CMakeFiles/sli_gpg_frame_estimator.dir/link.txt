@@ -1,0 +1,2 @@
+/usr/bin/ar qc libsli_gpg_frame_estimator.a  CMakeFiles/sli_gpg_frame_estimator.dir/src/sli_gpg/frame_estimator.cpp.o
+/usr/bin/ranlib libsli_gpg_frame_estimator.a

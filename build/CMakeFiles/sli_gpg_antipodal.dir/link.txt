@@ -1,0 +1,2 @@
+/usr/bin/ar qc libsli_gpg_antipodal.a  CMakeFiles/sli_gpg_antipodal.dir/src/sli_gpg/antipodal.cpp.o
+/usr/bin/ranlib libsli_gpg_antipodal.a
