@@ -306,23 +306,61 @@ void CloudCamera::voxelizeCloud(double cell_size)
 void CloudCamera::subsampleUniformly(int num_samples)
 {
   PointCloudRGB::Ptr crop_cloud(new PointCloudRGB);
+  PointCloudRGB::Ptr crop_top(new PointCloudRGB);
   Eigen::MatrixXf pts = cloud_processed_->getMatrixXfMap();
   Eigen::Vector4f min_pt;
   Eigen::Vector4f max_pt;
-  min_pt << pts.row(0).minCoeff(), pts.row(1).minCoeff(), pts.row(2).minCoeff()+0.008,0;
-  max_pt << pts.row(0).maxCoeff(), pts.row(1).maxCoeff(), pts.row(2).maxCoeff(),0;
+  double hand_height = 0.02;
+  std::cout << "After box_cropper :  " << pts.row(2).maxCoeff()-pts.row(2).minCoeff() << " samples.\n";
+  min_pt << pts.row(0).minCoeff(), pts.row(1).minCoeff(), pts.row(2).minCoeff()+hand_height,0;
+  max_pt << pts.row(0).maxCoeff(), pts.row(1).maxCoeff(), pts.row(2).maxCoeff()-hand_height,0;
   pcl::CropBox<pcl::PointXYZRGBA> box_cropper;
   box_cropper.setInputCloud(cloud_processed_);
   box_cropper.setMin(min_pt);
   box_cropper.setMax(max_pt);
   box_cropper.filter(*crop_cloud);
-  std::cout << "After box_cropper :  " << crop_cloud->size() << " samples.\n";
+  std::cout << "middle point clouds :  " << crop_cloud->size() << " points.\n";
 
   sample_indices_.resize(num_samples);
   pcl::RandomSample<pcl::PointXYZRGBA> random_sample;
-  random_sample.setInputCloud(cloud_processed_);
+  random_sample.setInputCloud(crop_cloud);
   random_sample.setSample(num_samples);
   random_sample.filter(sample_indices_);
+
+  min_pt << pts.row(0).minCoeff(), pts.row(1).minCoeff(), pts.row(2).maxCoeff()-hand_height,0;
+  max_pt << pts.row(0).maxCoeff(), pts.row(1).maxCoeff(), pts.row(2).maxCoeff(),0;
+  box_cropper.setInputCloud(cloud_processed_);
+  box_cropper.setMin(min_pt);
+  box_cropper.setMax(max_pt);
+  box_cropper.filter(*crop_top);
+  std::cout << "top point clouds have:  " << crop_top->size() << " points.\n";
+
+  int num_top_samples=num_samples*0.3;
+  std::vector<int> sample_top_indices_;
+  if (num_top_samples)
+  {
+      if (num_top_samples > crop_top->size())
+    {
+      sample_top_indices_.resize(crop_top->size());
+      for (int i=0; i < crop_top->size(); i++)
+          sample_top_indices_[i] = i;
+        }
+    else
+    {
+      sample_top_indices_.resize(num_top_samples);
+      random_sample.setInputCloud(crop_top);
+      random_sample.setSample(num_top_samples);
+      random_sample.filter(sample_top_indices_);
+    }
+
+    for (int i=0; i < num_top_samples; i++)
+    {
+      // std::vector<int>::iterator ret;
+      // ret = std::find(sample_indices_.begin(), sample_indices_.end(), sample_top_indices_[i]);
+      // if (ret == sample_indices_.end())
+      sample_indices_.push_back(sample_top_indices_[i]);
+    }
+  }
 }
 
 
