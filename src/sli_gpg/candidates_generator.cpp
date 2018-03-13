@@ -139,6 +139,54 @@ std::vector<Grasp> CandidatesGenerator::generateGraspCandidates(const CloudCamer
     }
   }
   std::cout << "Generated " << candidates.size() << " grasp candidates.\n";
+  // std::vector<Grasp> handcluster1;
+  // handcluster1.push_back(candidates[2]);
+  // std::vector<Grasp> handcluster;
+  // Eigen::Matrix3d rot;
+  // Eigen::Vector3d pos_;
+  // Eigen::Vector3d angles_;
+  // angles_<< -8.0 * M_PI/180, 8.0 * M_PI/180,0;
+  // Eigen::Matrix3d frame_rot;
+  // for (int n = 0; n < 2; n++)
+  // {
+  //   Grasp hand = candidates[2];
+  //   rot <<  cos(angles_(n)),  -1.0 * sin(angles_(n)),   0.0,
+  //           sin(angles_(n)),  cos(angles_(n)),          0.0,
+  //           0.0,              0.0,                      1.0;
+  //
+  //   frame_rot.noalias() = hand.getFrame()* rot;
+  //   hand.pose_.frame_= frame_rot;
+  //   Eigen::Vector3d zdists_ ;
+  //   zdists_<<-0.015, 0.015,0;
+  //   Eigen::Vector3d ydists_;
+  //    ydists_<< -0.015, 0.015,0;
+  //   for (int d = 0; d < zdists_.rows(); d++)
+  //   {
+  //     for (int t = 0; t < ydists_.rows(); t++)
+  //     {
+  //       if (d!=2 && t!=2)
+  //       {
+  //         pos_ << 0.0, ydists_(t), zdists_(d);
+  //         hand.setGraspBottom(hand.getGraspBottom() +frame_rot * pos_ );
+  //         hand.setGraspSurface(hand.getGraspSurface() + frame_rot * pos_);
+  //         hand.setGraspTop(hand.getGraspTop() + frame_rot * pos_);
+  //         handcluster.push_back(hand);
+  //       }
+  //     }
+  //   }
+  // }
+  // if (params_.plot_grasps_)
+  // {
+  //   const HandSearch::Parameters& params = hand_search_->getParams();
+  //   plotter_.plotFingers3D(handcluster, cloud_cam.getCloudOriginal(), "Grasp Candidates", params.hand_outer_diameter_,
+  //     params.finger_width_, params.hand_depth_, params.hand_height_);
+  // }
+  // if (params_.plot_grasps_)
+  // {
+  //   const HandSearch::Parameters& params = hand_search_->getParams();
+  //   plotter_.plotFingers3D(handcluster1, cloud_cam.getCloudOriginal(), "Grasp Candidates", params.hand_outer_diameter_,
+  //     params.finger_width_, params.hand_depth_, params.hand_height_);
+  // }
 
   if (params_.plot_grasps_)
   {

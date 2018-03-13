@@ -1,2 +1,0 @@
-/usr/bin/ar qc libsli_gpg_config_file.a  CMakeFiles/sli_gpg_config_file.dir/src/sli_gpg/config_file.cpp.o
-/usr/bin/ranlib libsli_gpg_config_file.a

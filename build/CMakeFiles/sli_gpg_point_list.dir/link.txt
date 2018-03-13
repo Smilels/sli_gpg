@@ -1,2 +1,0 @@
-/usr/bin/ar qc libsli_gpg_point_list.a  CMakeFiles/sli_gpg_point_list.dir/src/sli_gpg/point_list.cpp.o
-/usr/bin/ranlib libsli_gpg_point_list.a

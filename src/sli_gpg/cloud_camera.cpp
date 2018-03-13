@@ -321,7 +321,7 @@ void CloudCamera::subsampleUniformly(int num_samples)
   box_cropper.filter(*crop_cloud);
   std::cout << "middle point clouds :  " << crop_cloud->size() << " points.\n";
 
-  sample_indices_.resize(num_samples);
+  sample_indices_.resize(num_samples*0.7);
   pcl::RandomSample<pcl::PointXYZRGBA> random_sample;
   random_sample.setInputCloud(crop_cloud);
   random_sample.setSample(num_samples);

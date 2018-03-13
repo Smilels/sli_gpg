@@ -33,7 +33,7 @@ GraspSet::GraspSet(const HandGeometry& hand_geometry, const Eigen::VectorXd& ang
 void GraspSet::evaluateHypotheses(const PointList& point_list, const LocalFrame& local_frame)
 {
   //const double Y_STEP_SIZE = 0.05;
-  Eigen::VectorXd y_space = Eigen::VectorXd::LinSpaced(4, -1.0 * M_PI/2.0, 0);
+  Eigen::VectorXd y_space = Eigen::VectorXd::LinSpaced(4, -1.0 * M_PI/3.0, 1.0 * M_PI/3.0);
   hands_.resize(angles_.size()*y_space.size());
   sample_ = local_frame.getSample();
   is_valid_ = Eigen::Array<bool, 1, Eigen::Dynamic>::Constant(1, angles_.size()*y_space.size(), false);
@@ -64,13 +64,14 @@ void GraspSet::evaluateHypotheses(const PointList& point_list, const LocalFrame&
     Eigen::Matrix3d y_rot;
     y_rot << cos(y_space(y)),  0.0,   sin(y_space(y)),
               0.0,             1.0,   0.0,
-            -sin(y_space(y)),  1.0,   cos(y_space(y));
-    Eigen::Matrix3d frame_rot;
-    frame_rot=local_frame_mat * rot_binormal * y_rot;
+            -sin(y_space(y)),  0.0,   cos(y_space(y));
+    Eigen::Matrix3d frame_rot_y;
+    frame_rot_y=local_frame_mat * rot_binormal * y_rot;
   //  std::cout << "y_space " << y_space(y) << " hand candidates.\n";
     // Evaluate grasp at each hand orientation.
     for (int i = 0; i < angles_.rows(); i++)
     {
+      Eigen::Matrix3d frame_rot;
       // Rotation about curvature axis by <angles_(i)> radians
       Eigen::Matrix3d rot;
       rot <<  cos(angles_(i)),  -1.0 * sin(angles_(i)),   0.0,
@@ -78,7 +79,7 @@ void GraspSet::evaluateHypotheses(const PointList& point_list, const LocalFrame&
         0.0,              0.0,                      1.0;
 
       // Rotate points into this hand orientation.
-      frame_rot.noalias() = local_frame_mat * rot;
+      frame_rot.noalias() = frame_rot_y * rot;
 
       PointList point_list_frame = point_list.rotatePointList(frame_rot.transpose());
 

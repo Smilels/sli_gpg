@@ -1,2 +1,0 @@
-/usr/bin/ar qc libsli_gpg_cloud_camera.a  CMakeFiles/sli_gpg_cloud_camera.dir/src/sli_gpg/cloud_camera.cpp.o
-/usr/bin/ranlib libsli_gpg_cloud_camera.a
