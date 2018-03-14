@@ -321,10 +321,10 @@ void CloudCamera::subsampleUniformly(int num_samples)
   box_cropper.filter(*crop_cloud);
   std::cout << "middle point clouds :  " << crop_cloud->size() << " points.\n";
 
-  sample_indices_.resize(num_samples*0.7);
+  sample_indices_.resize(std::ceil(num_samples*0.6));
   pcl::RandomSample<pcl::PointXYZRGBA> random_sample;
   random_sample.setInputCloud(crop_cloud);
-  random_sample.setSample(num_samples);
+  random_sample.setSample(std::ceil(num_samples*0.6));
   random_sample.filter(sample_indices_);
 
   min_pt << pts.row(0).minCoeff(), pts.row(1).minCoeff(), pts.row(2).maxCoeff()-hand_height,0;
@@ -335,7 +335,7 @@ void CloudCamera::subsampleUniformly(int num_samples)
   box_cropper.filter(*crop_top);
   std::cout << "top point clouds have:  " << crop_top->size() << " points.\n";
 
-  int num_top_samples=num_samples*0.3;
+  int num_top_samples=std::ceil(num_samples*0.4);
   std::vector<int> sample_top_indices_;
   if (num_top_samples)
   {

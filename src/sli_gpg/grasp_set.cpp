@@ -33,7 +33,8 @@ GraspSet::GraspSet(const HandGeometry& hand_geometry, const Eigen::VectorXd& ang
 void GraspSet::evaluateHypotheses(const PointList& point_list, const LocalFrame& local_frame)
 {
   //const double Y_STEP_SIZE = 0.05;
-  Eigen::VectorXd y_space = Eigen::VectorXd::LinSpaced(4, -1.0 * M_PI/3.0, 1.0 * M_PI/3.0);
+  Eigen::VectorXd y_space(5);
+  y_space<< -1.0 * M_PI/4.0,-1.0 * M_PI/8.0,0,1.0 * M_PI/8.0, 1.0 * M_PI/4.0;
   hands_.resize(angles_.size()*y_space.size());
   sample_ = local_frame.getSample();
   is_valid_ = Eigen::Array<bool, 1, Eigen::Dynamic>::Constant(1, angles_.size()*y_space.size(), false);
