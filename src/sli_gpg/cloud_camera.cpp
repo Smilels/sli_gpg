@@ -305,63 +305,112 @@ void CloudCamera::voxelizeCloud(double cell_size)
 
 void CloudCamera::subsampleUniformly(int num_samples)
 {
+  Eigen::Matrix3d tf_matrix;
+  tf_matrix<<    0.66179,   0.211255,  -0.719308,
+   0.747455,  -0.259952,    0.61134,
+  -0.0578366,  -0.942229,  -0.329938;
+  Eigen::Matrix4d transform_1 = Eigen::Matrix4d::Identity();
+  transform_1.block<3,3>(0,0) = tf_matrix.block<3,3>(0,0);
+  transform_1 (0,3) = 0.580185 ;
+  transform_1 (1,3) = -0.507698;
+  transform_1 (2,3) = 0.58523;
+  PointCloudRGB::Ptr cloud_processed_table(new PointCloudRGB);
+  pcl::transformPointCloud (*cloud_processed_,*cloud_processed_table, transform_1);
+
   PointCloudRGB::Ptr crop_cloud(new PointCloudRGB);
   PointCloudRGB::Ptr crop_top(new PointCloudRGB);
-  Eigen::MatrixXf pts = cloud_processed_->getMatrixXfMap();
+  std::cout<<"3tf listener between kinect2 and table_top happens error"<<std::endl;
+  pcl::RandomSample<pcl::PointXYZRGBA> random_sample;
+  Eigen::MatrixXf pts = cloud_processed_table->getMatrixXfMap();
   Eigen::Vector4f min_pt;
   Eigen::Vector4f max_pt;
   double hand_height = 0.02;
-  std::cout << "After box_cropper :  " << pts.row(2).maxCoeff()-pts.row(2).minCoeff() << " samples.\n";
-  min_pt << pts.row(0).minCoeff(), pts.row(1).minCoeff(), pts.row(2).minCoeff()+hand_height,0;
-  max_pt << pts.row(0).maxCoeff(), pts.row(1).maxCoeff(), pts.row(2).maxCoeff()-hand_height,0;
-  pcl::CropBox<pcl::PointXYZRGBA> box_cropper;
-  box_cropper.setInputCloud(cloud_processed_);
-  box_cropper.setMin(min_pt);
-  box_cropper.setMax(max_pt);
-  box_cropper.filter(*crop_cloud);
-  std::cout << "middle point clouds :  " << crop_cloud->size() << " points.\n";
+  std::cout << "point cloud z height is :  " << pts.row(2).maxCoeff()-pts.row(2).minCoeff() << "\n";
 
-  sample_indices_.resize(std::ceil(num_samples*0.6));
-  pcl::RandomSample<pcl::PointXYZRGBA> random_sample;
-  random_sample.setInputCloud(crop_cloud);
-  random_sample.setSample(std::ceil(num_samples*0.6));
-  random_sample.filter(sample_indices_);
-
-  min_pt << pts.row(0).minCoeff(), pts.row(1).minCoeff(), pts.row(2).maxCoeff()-hand_height,0;
-  max_pt << pts.row(0).maxCoeff(), pts.row(1).maxCoeff(), pts.row(2).maxCoeff(),0;
-  box_cropper.setInputCloud(cloud_processed_);
-  box_cropper.setMin(min_pt);
-  box_cropper.setMax(max_pt);
-  box_cropper.filter(*crop_top);
-  std::cout << "top point clouds have:  " << crop_top->size() << " points.\n";
-
-  int num_top_samples=std::ceil(num_samples*0.4);
-  std::vector<int> sample_top_indices_;
-  if (num_top_samples)
+  if (pts.row(2).maxCoeff()-pts.row(2).minCoeff() < 3*hand_height )
   {
-      if (num_top_samples > crop_top->size())
+    min_pt << pts.row(0).minCoeff(), pts.row(1).minCoeff(), pts.row(2).minCoeff()+hand_height,0;
+    max_pt << pts.row(0).maxCoeff(), pts.row(1).maxCoeff(), pts.row(2).maxCoeff(),0;
+    pcl::CropBox<pcl::PointXYZRGBA> box_cropper;
+    box_cropper.setInputCloud(cloud_processed_table);
+    box_cropper.setMin(min_pt);
+    box_cropper.setMax(max_pt);
+    box_cropper.filter(*crop_cloud);
+    std::cout << "object is low and middle point clouds :  " << crop_cloud->size() << " points.\n";
+
+    if (num_samples > crop_cloud->size())
     {
-      sample_top_indices_.resize(crop_top->size());
-      for (int i=0; i < crop_top->size(); i++)
-          sample_top_indices_[i] = i;
-        }
+      sample_indices_.resize(crop_cloud->size());
+      for (int i=0; i < crop_cloud->size(); i++)
+          sample_indices_[i] = i;
+    }
     else
     {
-      sample_top_indices_.resize(num_top_samples);
-      random_sample.setInputCloud(crop_top);
-      random_sample.setSample(num_top_samples);
-      random_sample.filter(sample_top_indices_);
+      sample_indices_.resize(num_samples);
+      random_sample.setInputCloud(crop_cloud);
+      random_sample.setSample(num_samples);
+      random_sample.filter(sample_indices_);
+    }
+  }
+  else
+  {
+    min_pt << pts.row(0).minCoeff(), pts.row(1).minCoeff(), pts.row(2).minCoeff()+hand_height,0;
+    max_pt << pts.row(0).maxCoeff(), pts.row(1).maxCoeff(), pts.row(2).maxCoeff()-hand_height,0;
+    pcl::CropBox<pcl::PointXYZRGBA> box_cropper;
+    box_cropper.setInputCloud(cloud_processed_table);
+    box_cropper.setMin(min_pt);
+    box_cropper.setMax(max_pt);
+    box_cropper.filter(*crop_cloud);
+    std::cout << "middle point clouds :  " << crop_cloud->size() << " points.\n";
+
+    if (std::ceil(num_samples*0.6) > crop_cloud->size())
+    {
+      sample_indices_.resize(crop_cloud->size());
+      for (int i=0; i < crop_cloud->size(); i++)
+          sample_indices_[i] = i;
+    }
+    else
+    {
+      sample_indices_.resize(std::ceil(num_samples*0.6));
+      random_sample.setInputCloud(crop_cloud);
+      random_sample.setSample(num_samples*0.6);
+      random_sample.filter(sample_indices_);
     }
 
-    for (int i=0; i < num_top_samples; i++)
+    min_pt << pts.row(0).minCoeff(), pts.row(1).minCoeff(), pts.row(2).maxCoeff()-hand_height,0;
+    max_pt << pts.row(0).maxCoeff(), pts.row(1).maxCoeff(), pts.row(2).maxCoeff(),0;
+    box_cropper.setInputCloud(cloud_processed_table);
+    box_cropper.setMin(min_pt);
+    box_cropper.setMax(max_pt);
+    box_cropper.filter(*crop_top);
+    std::cout << "top point clouds have:  " << crop_top->size() << " points.\n";
+
+    int num_top_samples=std::ceil(num_samples*0.4);
+    std::vector<int> sample_top_indices_;
+    if (num_top_samples)
     {
-      // std::vector<int>::iterator ret;
-      // ret = std::find(sample_indices_.begin(), sample_indices_.end(), sample_top_indices_[i]);
-      // if (ret == sample_indices_.end())
-      sample_indices_.push_back(sample_top_indices_[i]);
+        if (num_top_samples > crop_top->size())
+      {
+        sample_top_indices_.resize(crop_top->size());
+        for (int i=0; i < crop_top->size(); i++)
+            sample_top_indices_[i] = i;
+          }
+      else
+      {
+        sample_top_indices_.resize(num_top_samples);
+        random_sample.setInputCloud(crop_top);
+        random_sample.setSample(num_top_samples);
+        random_sample.filter(sample_top_indices_);
+      }
+
+      for (int i=0; i < num_top_samples; i++)
+      {
+        sample_indices_.push_back(sample_top_indices_[i]);
     }
   }
 }
+}
+
 
 
 void CloudCamera::subsampleSamples(int num_samples)

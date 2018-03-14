@@ -51,6 +51,7 @@
 #include <pcl/point_cloud.h>
 #include <pcl/filters/crop_box.h>
 #include <pcl/common/common.h>
+#include <pcl/common/transforms.h>
 #include <gpg/eigen_utils.h>
 
 
