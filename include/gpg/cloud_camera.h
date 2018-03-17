@@ -40,7 +40,7 @@
 #include <vector>
 
 #include <Eigen/Dense>
-
+#include <pcl/visualization/pcl_visualizer.h>
 #include <pcl/features/integral_image_normal.h>
 #include <pcl/features/normal_3d_omp.h>
 #include <pcl/filters/random_sample.h>
