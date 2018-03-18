@@ -2,7 +2,8 @@
 #include <sstream>
 #include <string>
 #include <vector>
-
+#include <cstdlib>
+#include <ctime>
 // Custom
 #include <gpg/candidates_generator.h>
 #include <gpg/hand_search.h>
@@ -31,6 +32,7 @@ std::vector<double> stringToDouble(const std::string& str)
 
 int main(int argc, char* argv[])
 {
+   std::srand (std::time (NULL));
   // Read arguments from command line.
   if (argc < 3)
   {

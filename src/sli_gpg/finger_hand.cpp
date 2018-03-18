@@ -74,6 +74,63 @@ void FingerHand::evaluateFingers(const Eigen::Matrix3Xd& points, double bite, in
   }
 }
 
+int FingerHand::evaluateFingers_out(const Eigen::Matrix3Xd& points, double bite, int idx)
+{
+  // Calculate top and bottom of the hand (top = fingertip, bottom = base).
+  top_ = bite;
+  bottom_ = bite - hand_depth_;
+
+  fingers_.setConstant(false);
+
+  // Crop points at bite.
+  std::vector<int> cropped_indices;
+  for (int i = 0; i < points.cols(); i++)
+  {
+    if (points(forward_axis_, i) < bite)
+    {
+      // Check that the hand would be able to extend by <bite> onto the object without causing the back of the hand to
+      // collide with <points>.
+      if (points(forward_axis_, i) < bottom_)
+      {
+        return cropped_indices.size();
+      }
+
+      cropped_indices.push_back(i);
+    }
+  }
+
+  // Check that there is at least one point in between the fingers.
+  if (cropped_indices.size() == 0)
+  {
+    return cropped_indices.size();
+  }
+  // Identify free gaps (finger placements that do not collide with the point cloud).
+  if (idx == -1)
+  {
+    for (int i = 0; i < fingers_.size(); i++)
+    {
+      if (isGapFree(points, cropped_indices, i))
+      {
+        fingers_(i) = true;
+      }
+    }
+  }
+  else
+  {
+    if (isGapFree(points, cropped_indices, idx))
+    {
+      fingers_(idx) = true;
+    }
+
+    if (isGapFree(points, cropped_indices, fingers_.size() / 2 + idx))
+    {
+      fingers_(fingers_.size() / 2 + idx) = true;
+    }
+  }
+
+  return cropped_indices.size();
+}
+
 void FingerHand::evaluateHand()
 {
   const int n = fingers_.size() / 2;
@@ -117,31 +174,33 @@ int FingerHand::deepenHand(const Eigen::Matrix3Xd& points, double min_depth, dou
   const double DEEPEN_STEP_SIZE = 0.005;
   FingerHand new_hand = *this;
   FingerHand last_new_hand = new_hand;
-  std::vector<int> last_new_indices;
-  last_new_indices.resize(0);
-  std::vector<int> new_indices;
+  // std::vector<int> last_new_indices;
+  // last_new_indices.resize(0);
+  // std::vector<int> new_indices;
+  int new_indices;
+  int last_new_indices;
   int grow_indices;
 
   for (double depth = min_depth + DEEPEN_STEP_SIZE; depth <= max_depth; depth += DEEPEN_STEP_SIZE)
   {
     // Check if the new hand placement is feasible
-    new_indices.resize(0);
-    new_indices = new_hand.computePointsInClosingRegion(points, hand_eroded_idx);
-    if (new_indices.size() ==0)
+    new_indices = new_hand.evaluateFingers_out(points, depth, hand_eroded_idx);
+    //new_indices = new_hand.computePointsInClosingRegion(points, hand_eroded_idx);
+    if (new_indices==0)
     {
-      new_hand.evaluateFingers(points, depth, hand_eroded_idx);
+      //new_hand.evaluateFingers(points, depth, hand_eroded_idx);
       if (!new_hand.fingers_(hand_eroded_idx) || !new_hand.fingers_(opposite_idx))
         break;
     }
     else
     {
-      grow_indices=new_indices.size()-last_new_indices.size();
-      new_hand.evaluateFingers(points, depth, hand_eroded_idx);
+      grow_indices=new_indices-last_new_indices;
+      //new_hand.evaluateFingers(points, depth, hand_eroded_idx);
       if (!new_hand.fingers_(hand_eroded_idx) || !new_hand.fingers_(opposite_idx) || (grow_indices==0))
       {
         break;
-      }}
-    last_new_indices.resize(0);
+      }
+    }
     last_new_indices= new_indices;
     hand_(hand_eroded_idx) = true;
     last_new_hand = new_hand;

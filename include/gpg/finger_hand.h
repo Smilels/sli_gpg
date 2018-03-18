@@ -74,6 +74,7 @@ class FingerHand
      * \param idx if this is larger than -1, only check the <idx>-th finger placement
      */
     void evaluateFingers(const Eigen::Matrix3Xd& points, double bite, int idx = -1);
+    int evaluateFingers_out(const Eigen::Matrix3Xd& points, double bite, int idx = -1);
 
     /**
      * \brief Try to move the robot hand as far as possible onto the object.
