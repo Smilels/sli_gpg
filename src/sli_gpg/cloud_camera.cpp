@@ -315,14 +315,7 @@ void CloudCamera::subsampleUniformly(int num_samples)
   transform_1 (0,3) = 0.675226;
   transform_1 (1,3) = -0.345971;
   transform_1 (2,3) = 0.42758 ;
-  // tf_matrix<<0.611779,   0.788749, -0.0600161,
-  // 0.0944085,  -0.148133,  -0.984451,
-  // -0.785375 ,    0.5966,  -0.165089;
-  // Eigen::Matrix4d transform_1 = Eigen::Matrix4d::Identity();
-  // transform_1.block<3,3>(0,0) = tf_matrix.block<3,3>(0,0);
-  // transform_1 (0,3) = -0.115499 ;
-  // transform_1 (1,3) = 0.306069;
-  // transform_1 (2,3) =  0.807065 ;
+  
   PointCloudRGB::Ptr cloud_processed_table(new PointCloudRGB);
   pcl::transformPointCloud (*cloud_processed_,*cloud_processed_table, transform_1);
 

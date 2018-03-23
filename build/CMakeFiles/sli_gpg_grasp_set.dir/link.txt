@@ -1,2 +1,0 @@
-/usr/bin/ar qc libsli_gpg_grasp_set.a  CMakeFiles/sli_gpg_grasp_set.dir/src/sli_gpg/grasp_set.cpp.o
-/usr/bin/ranlib libsli_gpg_grasp_set.a

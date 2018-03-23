@@ -1,2 +1,0 @@
-/usr/bin/ar qc libsli_gpg_plot.a  CMakeFiles/sli_gpg_plot.dir/src/sli_gpg/plot.cpp.o
-/usr/bin/ranlib libsli_gpg_plot.a
