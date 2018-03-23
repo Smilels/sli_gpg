@@ -174,9 +174,6 @@ int FingerHand::deepenHand(const Eigen::Matrix3Xd& points, double min_depth, dou
   const double DEEPEN_STEP_SIZE = 0.005;
   FingerHand new_hand = *this;
   FingerHand last_new_hand = new_hand;
-  // std::vector<int> last_new_indices;
-  // last_new_indices.resize(0);
-  // std::vector<int> new_indices;
   int new_indices;
   int last_new_indices;
   int grow_indices;
@@ -185,17 +182,14 @@ int FingerHand::deepenHand(const Eigen::Matrix3Xd& points, double min_depth, dou
   {
     // Check if the new hand placement is feasible
     new_indices = new_hand.evaluateFingers_out(points, depth, hand_eroded_idx);
-    //new_indices = new_hand.computePointsInClosingRegion(points, hand_eroded_idx);
     if (new_indices==0)
     {
-      //new_hand.evaluateFingers(points, depth, hand_eroded_idx);
       if (!new_hand.fingers_(hand_eroded_idx) || !new_hand.fingers_(opposite_idx))
         break;
     }
     else
     {
       grow_indices=new_indices-last_new_indices;
-      //new_hand.evaluateFingers(points, depth, hand_eroded_idx);
       if (!new_hand.fingers_(hand_eroded_idx) || !new_hand.fingers_(opposite_idx) || (grow_indices==0))
       {
         break;
